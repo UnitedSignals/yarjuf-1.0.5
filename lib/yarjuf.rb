@@ -27,7 +27,21 @@ class JUnit < RSpec::Core::Formatters::BaseFormatter
 
   def dump_summary(duration, example_count, failure_count, pending_count)
     build_results duration, example_count, failure_count, pending_count
-    output.puts @builder.target!
+    @xml_output = @builder.target!
+  end
+
+  def seed(seed)
+    if seed
+      require 'nokogiri'
+
+      doc = Nokogiri::XML @xml_output
+      doc.root && doc.root["seed"] = seed.to_s
+      @xml_output = doc.to_xml
+    end
+  end
+
+  def close
+    @output.puts @xml_output
   end
 
   protected
